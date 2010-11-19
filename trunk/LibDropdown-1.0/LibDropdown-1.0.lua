@@ -485,6 +485,7 @@ end
 function AcquireButton(p)
 	local b = NewDropdownButton(tremove(buttonPool))
 	b.released = false
+	b:Show()
 	p:AddButton(b)
 	return b
 end
@@ -498,6 +499,7 @@ function ReleaseButton(b)
 	b.Disable = b.oldDisable
 	b.handled = false
 	b:SetParent(UIParent)
+	b:Hide()
 	if b.slider then
 		b.slider = ReleaseSlider(b.slider)
 	end
@@ -505,7 +507,8 @@ function ReleaseButton(b)
 	b:MakeButton("(released)")
 	if b.groupFrame then
 		b.groupFrame = b.groupFrame:Release()
-	end
+        end
+	     
 end
 
 local function frameReleaseOnHide(self)
@@ -560,11 +563,11 @@ do
 				wipe(info)
 				return ret
 			elseif ht == "table" then
-				return ht
+			   return v[handler]
 			elseif ht == "string" then
-				local t = runHandler(v, "handler", ...)
+				local t = runHandler(button, "handler", ...)
 				if type(t) == "table" then
-					ret = t[handler](t, info)
+				   ret = t[v[handler]](t, info, ...)
 					wipe(info)
 					return ret
 				end
@@ -572,13 +575,15 @@ do
 		elseif v and v[handler] == false then
 			return nil		-- Is this right?
 		else
+		   if button.GetParent then
 			local pp = button:GetParent() and button:GetParent():GetParent()
 			if not pp or not pp.data then
 				pp = button:GetParent()
 			end
 			if pp and pp.data then
 				return runHandler(pp, handler, ...)
-			end
+			     end
+			  end
 		end
 		wipe(info)				
 		return nil
@@ -695,13 +700,13 @@ do
 	do
 		local function refresh(self)
 			grefresh(self)
-			runHandler(self, "set", runHandler(self, "get"))
 			if self.groupFrame then
 				self.groupFrame:Refresh()
 			end
 		end
 		function Ace3.select(k, v, parent)
 			local b = setup(k, v, parent)
+			print("*** select ", k, v, parent)
 			b.parentTree = v
 			b:SetGroup(v.values, lib.Ace3MenuSelect)
 			b.refresh = refresh
@@ -711,7 +716,7 @@ do
 			self:SetChecked( runHandler(self:GetParent():GetParent(), "get") == self.value )
 		end
 		function lib:Ace3MenuSelect(t, parent)
-			for k, v in ipairs(t) do
+			for k, v in pairs(t) do
 				local b = parent:AcquireButton()
 				b:SetText(v)
 				b.value = k
@@ -963,11 +968,12 @@ local t = {
 			type = "execute",
 			name = "Close",
 			desc = "Close this menu",
-			func = function(self) end,
+		   func = function(self)  end,
 			order = 1000
 		}
 	}
 }
+
 ---- 
 
 WorldFrame:HookScript("OnMouseDown", function()
