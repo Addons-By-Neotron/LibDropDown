@@ -12,6 +12,9 @@ lib.framePool = framePool
 local buttonPool = lib.buttonPool or {}
 lib.buttonPool = buttonPool
 
+local inputPool = lib.inputPool or {}
+lib.inputPool = inputPool
+
 local frameHideQueue = lib.frameHideQueue or {}
 lib.frameHideQueue = frameHideQueue
 
@@ -54,6 +57,47 @@ if not lib.new then
 	lib.new, lib.del = new, del
 end
 
+-- Make the frame match the tooltip
+local function InitializeFrame(frame)
+   local backdrop = GameTooltip:GetBackdrop()
+   
+   frame:SetBackdrop(backdrop)
+   
+   if frame then
+      frame:SetBackdropColor(GameTooltip:GetBackdropColor())
+      frame:SetBackdropBorderColor(GameTooltip:GetBackdropBorderColor())
+   end
+   frame:SetScale(GameTooltip:GetScale())
+end
+
+local editBoxCount = 1
+local function AcquireInput()
+   local frame = tremove(inputPool)
+
+   if frame then
+      frame.released = false
+      return frame
+   end
+   
+   frame = CreateFrame("EditBox", "LibDropDownEditBox"..editBoxCount, UIParent, "InputBoxTemplate")
+   frame:SetAutoFocus(false)
+   editBoxCount = editBoxCount + 1
+   frame:SetScript("OnEscapePressed",
+		   function(self)
+		      self:ClearFocus()
+		      self:GetParent():GetRoot():Refresh()
+		   end)
+   
+   frame:SetScript("OnEnterPressed",
+		   function(self)
+		      if self.ValueChanged then
+			 self:ValueChanged(self:GetText())
+		      end
+		   end)
+   frame.refresh = noop
+   return frame   
+end
+   
 local function AcquireSlider()
 	local frame = tremove(sliderPool)
 	if frame then
@@ -113,6 +157,15 @@ local function ReleaseSlider(slider)
 	slider:Hide()
 	slider:SetParent(UIParent)
 	tinsert(sliderPool, slider)
+	return nil
+end
+
+local function ReleaseInput(input)
+	if input.released then return end
+	input.released = true
+	input:Hide()
+	input:SetParent(UIParent)
+	tinsert(inputPool, input)
 	return nil
 end
 
@@ -232,19 +285,9 @@ local frameCount = 0
 function NewDropdownFrame()
 	local frame = CreateFrame("Frame", "LibDropdownFrame" .. frameCount, UIParent)
 	frameCount = frameCount + 1
-	frame:SetFrameStrata("TOOLTIP")
 	frame:SetPoint("CENTER", UIParent, "CENTER")
 	frame:SetWidth(10)
 	frame:SetHeight(24)
-	frame:SetBackdrop({
-		bgFile = [[Interface\DialogFrame\UI-DialogBox-Background]],
-		edgeFile = [[Interface\DialogFrame\UI-DialogBox-Border]],
-		edgeFile = "Interface/Tooltips/UI-Tooltip-Border",
-		tile = true,
-		tileSize = 16,
-		edgeSize = 16,
-		insets = {left = 4, right = 4, top = 4, bottom = 4}
-	})
 	frame:EnableMouse(true)
 	frame.AddButton = AddButton
 	frame.Refresh = Refresh
@@ -252,6 +295,8 @@ function NewDropdownFrame()
 	frame.isDropdownFrame = true
 	frame.Release = ReleaseFrame
 	frame.AcquireButton = AcquireButton
+	-- make it close on escape
+	tinsert(UISpecialFrames, frame:GetName())
 	return frame
 end
 
@@ -466,6 +511,9 @@ do
 end
 
 function ReleaseFrame(f)
+        if f.rootMenu then
+	   openMenu = nil
+	end
 	if f.released then return end
 	f.released = true
 	f.data = nil
@@ -487,6 +535,7 @@ end
 function AcquireButton(p)
 	local b = NewDropdownButton(tremove(buttonPool))
 	b.released = false
+	b:EnableMouse(true)
 	b:Show()
 	p:AddButton(b)
 	return b
@@ -505,6 +554,9 @@ function ReleaseButton(b)
 	if b.slider then
 		b.slider = ReleaseSlider(b.slider)
 	end
+	if b.input then
+		b.input = ReleaseInput(b.input)
+	end
 	b:ClearAllPoints()
 	b:MakeButton("(released)")
 	if b.groupFrame then
@@ -521,6 +573,7 @@ end
 
 function AcquireFrame(parent, toplevel)
 	local f = tremove(framePool) or NewDropdownFrame()
+	InitializeFrame(f) -- set the look of the frame
 	f.released = false
 	f.buttons = f.buttons or {}
 	f:SetParent(parent or UIParent)
@@ -645,13 +698,43 @@ do
 	
 	-- input
 	do
-		local function onClick(self)
-			self:GetParent():GetRoot():Refresh()
-		end
-		function Ace3.input(k, v, parent)
-			local b = setup(k, v, parent)
-			b.OnClick = onClick
-		end
+	   local function refresh(self)
+	      grefresh(self)
+	      self.input:SetText(runHandler(self, "get") or "")
+	   end
+	   
+	   local function inputValueChanged(self, val)
+	      runHandler(self:GetParent():GetParent(), "set", val)
+	      self:GetParent():GetRoot():Refresh()
+	   end
+	   
+	   function Ace3.input(k, v, parent)
+	      local b = setup(k, v, parent)
+	      b:SetGroup(v, lib.Ace3InputShow)
+	      b.input = AcquireInput()
+	      b.refresh = refresh
+	   end
+	   
+	   local function showInput(frame)
+	      local data = frame.data
+	      local input = frame:GetParent().input
+	      print(data, input, frame)
+	      input:SetParent(frame)
+	      input:ClearAllPoints()
+	      input:SetPoint("LEFT", frame, "LEFT", 10, 0)
+	      frame:SetWidth(185)
+	      input:SetWidth(170)
+	      input:SetHeight(34)
+	      frame:SetHeight(34)
+	      input.ValueChanged = inputValueChanged
+	      input:Show()
+	      refresh(frame:GetParent())
+	   end
+
+	   function lib:Ace3InputShow(t, parent)
+	      parent.data = t
+	      parent.Showing = showInput
+	   end	   
 	end
 	
 	-- toggle
@@ -691,7 +774,7 @@ do
 		function Ace3.header(k, v, parent)
 			local b = setup(k, v, parent)
 			b:MakeTitle(k)
-			b.OnClick = nil
+			b:EnableMouse(false)
 			b.tristate = nil
 			b.refresh = refresh
 		end
@@ -835,6 +918,8 @@ do
 				openMenu:SetPoint("CENTER", UIParent, "CENTER")
 				self:OpenAce3Menu(t.args, openMenu)
 				openMenu:Refresh()
+				openMenu:SetFrameStrata("TOOLTIP")
+				return openMenu
 			else
 				local sortedOpts = new()
 				local lookup = new()
