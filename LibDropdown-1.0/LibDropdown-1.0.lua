@@ -718,7 +718,6 @@ do
 	   local function showInput(frame)
 	      local data = frame.data
 	      local input = frame:GetParent().input
-	      print(data, input, frame)
 	      input:SetParent(frame)
 	      input:ClearAllPoints()
 	      input:SetPoint("LEFT", frame, "LEFT", 10, 0)
