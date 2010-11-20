@@ -232,6 +232,7 @@ local frameCount = 0
 function NewDropdownFrame()
 	local frame = CreateFrame("Frame", "LibDropdownFrame" .. frameCount, UIParent)
 	frameCount = frameCount + 1
+	frame:SetFrameStrata("TOOLTIP")
 	frame:SetPoint("CENTER", UIParent, "CENTER")
 	frame:SetWidth(10)
 	frame:SetHeight(24)
@@ -251,7 +252,6 @@ function NewDropdownFrame()
 	frame.isDropdownFrame = true
 	frame.Release = ReleaseFrame
 	frame.AcquireButton = AcquireButton
-
 	return frame
 end
 
@@ -678,6 +678,21 @@ do
 			local b = setup(k, v, parent)
 			b.OnClick = onClick
 			b.tristate = v.tristate
+			b.refresh = refresh
+		end
+	end
+
+	-- header
+	do
+		local function refresh(self)
+			grefresh(self)
+		end
+
+		function Ace3.header(k, v, parent)
+			local b = setup(k, v, parent)
+			b:MakeTitle(k)
+			b.OnClick = nil
+			b.tristate = nil
 			b.refresh = refresh
 		end
 	end
