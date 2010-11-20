@@ -108,8 +108,10 @@ local function AcquireSlider()
 end
 
 local function ReleaseSlider(slider)
-	if not slider.released then return end
+	if slider.released then return end
 	slider.released = true
+	slider:Hide()
+	slider:SetParent(UIParent)
 	tinsert(sliderPool, slider)
 	return nil
 end
@@ -506,6 +508,7 @@ function ReleaseButton(b)
 	b:ClearAllPoints()
 	b:MakeButton("(released)")
 	if b.groupFrame then
+	        b.groupFrame.Showing = nil
 		b.groupFrame = b.groupFrame:Release()
         end
 	     
@@ -706,7 +709,6 @@ do
 		end
 		function Ace3.select(k, v, parent)
 			local b = setup(k, v, parent)
-			print("*** select ", k, v, parent)
 			b.parentTree = v
 			b:SetGroup(v.values, lib.Ace3MenuSelect)
 			b.refresh = refresh
@@ -773,7 +775,7 @@ do
 			slider.text:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 8)
 			slider.text:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 8)
 
-			slider.text:SetText(data.max)			
+			slider.text:SetText(data.max)
 			frame:SetWidth(max(60, slider.text:GetStringWidth() + 10))
 
 			slider.step = data.bigStep
@@ -786,6 +788,7 @@ do
 			frame.Hiding = removeMousewheelFuncs
 			frame:SetHeight(180)
 			
+			slider:Show()
 			refresh(frame:GetParent())
 		end
 		
@@ -973,6 +976,11 @@ local t = {
 		}
 	}
 }
+
+function testdropdown()
+   LibStub("LibDropdown-1.0"):OpenAce3Menu(t)
+end
+
 
 ---- 
 
