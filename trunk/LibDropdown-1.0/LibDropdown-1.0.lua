@@ -126,9 +126,10 @@ local function AcquireSlider()
    text:SetTextColor(1,1,1,1)
    frame.text = text
    
-   frame:SetScript("OnMouseWheel", function(self)
+   frame:SetScript("OnMouseWheel", function(self, direction, ...)
+				      if not direction then return end -- huh?
 				      local mn, mx = self:GetMinMaxValues()
-				      local nv = min(mx, max(mn, self:GetValue() + (self.step * arg1 * -1)))
+				      local nv = min(mx, max(mn, self:GetValue() + ((self.step or 1) * direction  * -1)))
 				      self:SetValue(nv)
 				   end)
 
@@ -598,16 +599,47 @@ do
    local Ace3 = {}
    local grefresh
    local info = {}
-   
+   local options
+   local currentOptionData
    local function setup(k, v, parent)
       local b = parent:AcquireButton()
       b.data = v
+      b.option = v
       b.dataname = k
       b.refresh = grefresh
       return b
    end
-   
+
+   local function setInfoOptions()
+      local option = options
+      for _, key in ipairs(info) do
+	 if option.args and option.args[key] then
+	    option = option.args[key]
+	 else
+	    return
+	 end
+      end
+      info.option = option
+      info.type = option.type
+   end
+
+   local function initInfo(type)
+      info.options = options
+      info.appName = options.name
+      info.type = type
+      info.uiType = "dropdown"
+      info.uiName = "LibDropdown-1.0"
+   end
+
+   local function wipeInfo()
+      local type = info.type
+      wipe(info)
+      initInfo(type)
+   end
+      
    local function runHandler(button, handler, ...)
+      info.handler = handler
+      info.option = button.data
       if not button.rootMenu then
 	 tinsert(info, 1, button.dataname)
       end
@@ -615,16 +647,18 @@ do
       if v and v[handler] then
 	 local ht = type(v[handler])
 	 if ht == "function" then
+	    setInfoOptions()
 	    local ret = v[handler](info, ...)
-	    wipe(info)
+	    wipeInfo()
 	    return ret
 	 elseif ht == "table" then
 	    return v[handler]
 	 elseif ht == "string" then
 	    local t = runHandler(button, "handler", ...)
 	    if type(t) == "table" then
+	       setInfoOptions()
 	       ret = t[v[handler]](t, info, ...)
-	       wipe(info)
+	       wipeInfo()
 	       return ret
 	    end
 	 end
@@ -641,7 +675,7 @@ do
 	    end
 	 end
       end
-      wipe(info)				
+      wipeInfo()				
       return nil
    end
    
@@ -691,6 +725,7 @@ do
       b:SetText(v.name)
       b.desc = v.desc
       b.OnClick = function(self)
+		     initInfo('execute')
 		     runHandler(self, "func")
 		     self:GetRoot():Refresh()
 		  end
@@ -704,6 +739,7 @@ do
       end
       
       local function inputValueChanged(self, val)
+	 initInfo('input')
 	 runHandler(self:GetParent():GetParent(), "set", val)
 	 self:GetParent():GetRoot():Refresh()
       end
@@ -740,9 +776,11 @@ do
    do
       local function refresh(self)
 	 grefresh(self)
+	 initInfo('toggle')
 	 self:SetChecked(runHandler(self, "get"))
       end
       local function onClick(self)
+	 initInfo('toggle')
 	 if self.data.tristate then
 	    local val = runHandler(self, "get")
 	    local sv 
@@ -783,6 +821,7 @@ do
    do
       local function refresh(self)
 	 grefresh(self)
+	 initInfo('color')
 	 b.swatch:GetNormalTexture():SetVertexColor(runHandler(self, "get")(nil))
       end
       function Ace3.color(k, v, parent)
@@ -812,9 +851,11 @@ do
       end
       
       local function buttonRefresh(self)
+	 initInfo('select')
 	 self:SetChecked( runHandler(self:GetParent():GetParent(), "get") == self.value )
       end
       function lib:Ace3MenuSelect(t, parent)
+	 initInfo('select')
 	 if type(t) == "string" or type(t) == "function" then
 	    t = runHandler(parent, "values")
 	 end
@@ -824,6 +865,7 @@ do
 	       b:SetText(v)
 	       b.value = k
 	       b.OnClick = function(self)
+			      initInfo('select')
 			      runHandler(self:GetParent():GetParent(), "set", self.value)
 			      self:GetParent():GetRoot():Refresh()
 			   end
@@ -838,7 +880,9 @@ do
    do
       local function refresh(self)
 	 grefresh(self)
+	 initInfo('range')
 	 self.slider:SetValue(runHandler(self, "get"))
+	 initInfo('range')
 	 self.slider.text:SetText(runHandler(self, "get"))
       end	
       function Ace3.range(k, v, parent)
@@ -860,6 +904,7 @@ do
       end
       
       local function sliderValueChanged(self, val)
+	 initInfo('range')
 	 runHandler(self:GetParent():GetParent(), "set", val)
 	 self:GetParent():GetRoot():Refresh()
       end
@@ -882,7 +927,7 @@ do
 
 	 slider.step = data.bigStep
 	 slider:SetMinMaxValues(data.min or 0, data.max or 100)				
-	 slider:SetValueStep(data.bigStep or data.step)
+	 slider:SetValueStep(data.bigStep or data.step or 1)
 	 slider.ValueChanged = sliderValueChanged
 	 
 	 frame:EnableMouseWheel(true)
@@ -908,12 +953,13 @@ do
 			     else return false
 			     end			
 			  end
+      
       function lib:OpenAce3Menu(t, parent)
 	 if parent == nil and t.args then
 	    if openMenu then
 	       openMenu:Release()
 	    end
-	    info.options = t
+	    options = t
 	    openMenu = AcquireFrame(nil, true)
 	    openMenu:Show()
 	    openMenu.data = t
