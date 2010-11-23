@@ -31,23 +31,23 @@ lib.noop = noop
 
 local new, newHash, newSet, del
 if not lib.new then
-   local list = setmetatable({}, {__mode='k'})	
+   local list = setmetatable({}, {__mode='k'})  
    function new(...)
       local t = next(list)
       if t then
-	 list[t] = nil
-	 for i = 1, select('#', ...) do
-	    t[i] = select(i, ...)
-	 end
-	 return t
+         list[t] = nil
+         for i = 1, select('#', ...) do
+            t[i] = select(i, ...)
+         end
+         return t
       else
-	 return {...}
+         return {...}
       end
    end
    function del(t)
       setmetatable(t, nil)
       for k in pairs(t) do
-	 t[k] = nil
+         t[k] = nil
       end
       t[''] = true
       t[''] = nil
@@ -83,17 +83,17 @@ local function AcquireInput()
    frame:SetAutoFocus(false)
    editBoxCount = editBoxCount + 1
    frame:SetScript("OnEscapePressed",
-		   function(self)
-		      self:ClearFocus()
-		      self:GetParent():GetRoot():Refresh()
-		   end)
+                   function(self)
+                      self:ClearFocus()
+                      self:GetParent():GetRoot():Refresh()
+                   end)
    
    frame:SetScript("OnEnterPressed",
-		   function(self)
-		      if self.ValueChanged then
-			 self:ValueChanged(self:GetText())
-		      end
-		   end)
+                   function(self)
+                      if self.ValueChanged then
+                         self:ValueChanged(self:GetText())
+                      end
+                   end)
    frame.refresh = noop
    return frame   
 end
@@ -110,13 +110,13 @@ local function AcquireSlider()
    frame:SetHeight(150)
    frame:SetOrientation("VERTICAL")
    frame:SetBackdrop({
-			bgFile = [[Interface\Buttons\UI-SliderBar-Background]],
-			edgeFile = [[Interface\Buttons\UI-SliderBar-Border]],
-			tile = true,
-			tileSize = 8,
-			edgeSize = 8,
-			insets = {left = 3, right = 3, top = 6, bottom = 6}
-		     })
+                        bgFile = [[Interface\Buttons\UI-SliderBar-Background]],
+                        edgeFile = [[Interface\Buttons\UI-SliderBar-Border]],
+                        tile = true,
+                        tileSize = 8,
+                        edgeSize = 8,
+                        insets = {left = 3, right = 3, top = 6, bottom = 6}
+                     })
    frame:SetThumbTexture([[Interface\Buttons\UI-SliderBar-Button-Vertical]])
    frame:EnableMouseWheel()
    frame:Show()
@@ -127,27 +127,27 @@ local function AcquireSlider()
    frame.text = text
    
    frame:SetScript("OnMouseWheel", function(self, direction, ...)
-				      if not direction then return end -- huh?
-				      local mn, mx = self:GetMinMaxValues()
-				      local nv = min(mx, max(mn, self:GetValue() + ((self.step or 1) * direction  * -1)))
-				      self:SetValue(nv)
-				   end)
+                                      if not direction then return end -- huh?
+                                      local mn, mx = self:GetMinMaxValues()
+                                      local nv = min(mx, max(mn, self:GetValue() + ((self.step or 1) * direction  * -1)))
+                                      self:SetValue(nv)
+                                   end)
 
    frame:SetScript("OnValueChanged", function(self)
-					local mn, mx = self:GetMinMaxValues()
-					local nv = min(mx, max(mn, self:GetValue()))
-					if nv ~= self:GetValue() then
-					   self:SetValue(nv)
-					   return
-					end
-					local n, x = self:GetMinMaxValues()
-					local ev = x - nv
-					frame.text:SetText(ev)
+                                        local mn, mx = self:GetMinMaxValues()
+                                        local nv = min(mx, max(mn, self:GetValue()))
+                                        if nv ~= self:GetValue() then
+                                           self:SetValue(nv)
+                                           return
+                                        end
+                                        local n, x = self:GetMinMaxValues()
+                                        local ev = x - nv
+                                        frame.text:SetText(ev)
 
-					if self.ValueChanged then
-					   self:ValueChanged(self:GetValue())
-					end
-				     end)
+                                        if self.ValueChanged then
+                                           self:ValueChanged(self:GetValue())
+                                        end
+                                     end)
    frame.refresh = noop
    return frame
 end
@@ -198,7 +198,7 @@ end
 function Refresh(self)
    if not self:IsVisible() then return end
    local maxWidth = 1
-   for i = 1, #self.buttons do	
+   for i = 1, #self.buttons do  
       self.buttons[i]:refresh()
       maxWidth = math_max(maxWidth, self.buttons[i].text:GetStringWidth() + 60)
    end
@@ -307,7 +307,7 @@ do
       GameTooltip:ClearLines()
       GameTooltip:AddLine(self.text:GetText())
       if self.desc then
-	 GameTooltip:AddLine("|cffffffff" .. self.desc .. "|r")
+         GameTooltip:AddLine("|cffffffff" .. self.desc .. "|r")
       end
       GameTooltip:Show()
    end
@@ -316,10 +316,10 @@ do
       GameTooltip:Hide()
       local p = self:GetParent()
       if p then
-	 local f = p:GetScript("OnLeave")
-	 if f then
-	    f(p)
-	 end
+         local f = p:GetScript("OnLeave")
+         if f then
+            f(p)
+         end
       end
    end
 
@@ -337,9 +337,9 @@ do
 
    local function click(self)
       if self.OnClick and self.clickable then
-	 self.OnClick(self)
-	 PlaySound("igMainMenuOptionCheckBoxOn");
-	 self:GetParent():GetRoot():Refresh()
+         self.OnClick(self)
+         PlaySound("igMainMenuOptionCheckBoxOn");
+         self:GetParent():GetRoot():Refresh()
       end
    end
    
@@ -361,7 +361,7 @@ do
       self.enabled = true
       self:SetScript("OnMouseDown", pushText)
       self:SetScript("OnMouseUp", unpushText)
-      -- self.text:SetTextColor(self:GetTextColor())	-- Removed in 3.0
+      -- self.text:SetTextColor(self:GetTextColor())    -- Removed in 3.0
       self.check:SetDesaturated(false)
       self.expand:SetDesaturated(false)
       self:oldEnable()
@@ -377,7 +377,7 @@ do
       local f = ColorPickerFrame.previousValues.frame
       f:GetNormalTexture():SetVertexColor(r, g, b, a)
       if f:GetParent().OnClick then
-	 f:GetParent():OnClick(r,g,b,a)
+         f:GetParent():OnClick(r,g,b,a)
       end
    end
    
@@ -443,7 +443,7 @@ do
       local frame = f or CreateFrame("Button", nil, UIParent)
       frame:SetHighlightTexture([[Interface\QuestFrame\UI-QuestTitleHighlight]])
       frame:GetHighlightTexture():SetBlendMode("ADD")
-      -- frame:SetDisabledTextColor(0.5, 0.5, 0.5, 1)	-- Removed in 3.0
+      -- frame:SetDisabledTextColor(0.5, 0.5, 0.5, 1)   -- Removed in 3.0
       frame:SetPushedTextOffset(3,-3)
       frame:SetHeight(18)
       
@@ -613,11 +613,11 @@ do
    local function setInfoOptions()
       local option = options
       for _, key in ipairs(info) do
-	 if option.args and option.args[key] then
-	    option = option.args[key]
-	 else
-	    return
-	 end
+         if option.args and option.args[key] then
+            option = option.args[key]
+         else
+            return
+         end
       end
       info.option = option
       info.type = option.type
@@ -641,41 +641,41 @@ do
       info.handler = handler
       info.option = button.data
       if not button.rootMenu then
-	 tinsert(info, 1, button.dataname)
+         tinsert(info, 1, button.dataname)
       end
       local v = button.data
       if v and v[handler] then
-	 local ht = type(v[handler])
-	 if ht == "function" then
-	    setInfoOptions()
-	    local ret = v[handler](info, ...)
-	    wipeInfo()
-	    return ret
-	 elseif ht == "table" then
-	    return v[handler]
-	 elseif ht == "string" then
-	    local t = runHandler(button, "handler", ...)
-	    if type(t) == "table" then
-	       setInfoOptions()
-	       ret = t[v[handler]](t, info, ...)
-	       wipeInfo()
-	       return ret
-	    end
-	 end
+         local ht = type(v[handler])
+         if ht == "function" then
+            setInfoOptions()
+            local ret = v[handler](info, ...)
+            wipeInfo()
+            return ret
+         elseif ht == "table" then
+            return v[handler]
+         elseif ht == "string" then
+            local t = runHandler(button, "handler", ...)
+            if type(t) == "table" then
+               setInfoOptions()
+               ret = t[v[handler]](t, info, ...)
+               wipeInfo()
+               return ret
+            end
+         end
       elseif v and v[handler] == false then
-	 return nil		-- Is this right?
+         return nil             -- Is this right?
       else
-	 if button.GetParent then
-	    local pp = button:GetParent() and button:GetParent():GetParent()
-	    if not pp or not pp.data then
-	       pp = button:GetParent()
-	    end
-	    if pp and pp.data then
-	       return runHandler(pp, handler, ...)
-	    end
-	 end
+         if button.GetParent then
+            local pp = button:GetParent() and button:GetParent():GetParent()
+            if not pp or not pp.data then
+               pp = button:GetParent()
+            end
+            if pp and pp.data then
+               return runHandler(pp, handler, ...)
+            end
+         end
       end
-      wipeInfo()				
+      wipeInfo()                                
       return nil
    end
    
@@ -683,41 +683,41 @@ do
       self:SetText(self.data.name)
       self.desc = self.data.desc
       if type(self.data.disabled) == "function" then
-	 if self.data.disabled() then
-	    self:Disable()
-	 else
-	    self:Enable()
-	 end
+         if self.data.disabled() then
+            self:Disable()
+         else
+            self:Enable()
+         end
       elseif type(self.data.disabled) == "boolean" then
-	 if self.data.disabled then
-	    self:Disable()
-	 else
-	    self:Enable()
-	 end
+         if self.data.disabled then
+            self:Disable()
+         else
+            self:Enable()
+         end
       end
    end
 
    -- group
    do
       local function refresh(self)
-	 grefresh(self)
-	 if not self.groupFrame or self.groupFrame == self:GetParent() then return end
-	 self.groupFrame:Refresh()
+         grefresh(self)
+         if not self.groupFrame or self.groupFrame == self:GetParent() then return end
+         self.groupFrame:Refresh()
       end
       function Ace3.group(k, v, parent)
-	 local b = setup(k, v, parent)
-	 if v.inline then
-	    -- TODO: Add heading 
-	    local b2 = parent:AcquireButton()
-	    b:MakeTitle(k)
-	    b2.refresh = noop
-	    lib:OpenAce3Menu(v.args, parent)
-	 else
-	    b:SetGroup(v.args, lib.OpenAce3Menu)
-	 end
-	 b.refresh = refresh
+         local b = setup(k, v, parent)
+         if v.inline then
+            -- TODO: Add heading 
+            local b2 = parent:AcquireButton()
+            b:MakeTitle(k)
+            b2.refresh = noop
+            lib:OpenAce3Menu(v.args, parent)
+         else
+            b:SetGroup(v.args, lib.OpenAce3Menu)
+         end
+         b.refresh = refresh
       end
-   end	
+   end  
    
    -- execute
    function Ace3.execute(k, v, parent)
@@ -725,270 +725,270 @@ do
       b:SetText(v.name)
       b.desc = v.desc
       b.OnClick = function(self)
-		     initInfo('execute')
-		     runHandler(self, "func")
-		     self:GetRoot():Refresh()
-		  end
+                     initInfo('execute')
+                     runHandler(self, "func")
+                     self:GetRoot():Refresh()
+                  end
    end
    
    -- input
    do
       local function refresh(self)
-	 grefresh(self)
-	 self.input:SetText(runHandler(self, "get") or "")
+         grefresh(self)
+         self.input:SetText(runHandler(self, "get") or "")
       end
       
       local function inputValueChanged(self, val)
-	 initInfo('input')
-	 runHandler(self:GetParent():GetParent(), "set", val)
-	 self:GetParent():GetRoot():Refresh()
+         initInfo('input')
+         runHandler(self:GetParent():GetParent(), "set", val)
+         self:GetParent():GetRoot():Refresh()
       end
       
       function Ace3.input(k, v, parent)
-	 local b = setup(k, v, parent)
-	 b:SetGroup(v, lib.Ace3InputShow)
-	 b.input = AcquireInput()
-	 b.refresh = refresh
+         local b = setup(k, v, parent)
+         b:SetGroup(v, lib.Ace3InputShow)
+         b.input = AcquireInput()
+         b.refresh = refresh
       end
       
       local function showInput(frame)
-	 local data = frame.data
-	 local input = frame:GetParent().input
-	 input:SetParent(frame)
-	 input:ClearAllPoints()
-	 input:SetPoint("LEFT", frame, "LEFT", 10, 0)
-	 frame:SetWidth(185)
-	 input:SetWidth(170)
-	 input:SetHeight(34)
-	 frame:SetHeight(34)
-	 input.ValueChanged = inputValueChanged
-	 input:Show()
-	 refresh(frame:GetParent())
+         local data = frame.data
+         local input = frame:GetParent().input
+         input:SetParent(frame)
+         input:ClearAllPoints()
+         input:SetPoint("LEFT", frame, "LEFT", 10, 0)
+         frame:SetWidth(185)
+         input:SetWidth(170)
+         input:SetHeight(34)
+         frame:SetHeight(34)
+         input.ValueChanged = inputValueChanged
+         input:Show()
+         refresh(frame:GetParent())
       end
 
       function lib:Ace3InputShow(t, parent)
-	 parent.data = t
-	 parent.Showing = showInput
-      end	   
+         parent.data = t
+         parent.Showing = showInput
+      end          
    end
    
    -- toggle
    do
       local function refresh(self)
-	 grefresh(self)
-	 initInfo('toggle')
-	 self:SetChecked(runHandler(self, "get"))
+         grefresh(self)
+         initInfo('toggle')
+         self:SetChecked(runHandler(self, "get"))
       end
       local function onClick(self)
-	 initInfo('toggle')
-	 if self.data.tristate then
-	    local val = runHandler(self, "get")
-	    local sv 
-	    if val == nil then sv = true
-	    elseif val == true then sv = false
-	    else sv = nil end
-	    runHandler(self, "set", sv)
-	 else
-	    local val = not runHandler(self, "get")
-	    runHandler(self, "set", val)
-	 end
-	 self:GetRoot():Refresh()
+         initInfo('toggle')
+         if self.data.tristate then
+            local val = runHandler(self, "get")
+            local sv 
+            if val == nil then sv = true
+            elseif val == true then sv = false
+            else sv = nil end
+            runHandler(self, "set", sv)
+         else
+            local val = not runHandler(self, "get")
+            runHandler(self, "set", val)
+         end
+         self:GetRoot():Refresh()
       end
       function Ace3.toggle(k, v, parent)
-	 local b = setup(k, v, parent)
-	 b.OnClick = onClick
-	 b.tristate = v.tristate
-	 b.refresh = refresh
+         local b = setup(k, v, parent)
+         b.OnClick = onClick
+         b.tristate = v.tristate
+         b.refresh = refresh
       end
    end
 
    -- header
    do
       local function refresh(self)
-	 grefresh(self)
+         grefresh(self)
       end
 
       function Ace3.header(k, v, parent)
-	 local b = setup(k, v, parent)
-	 b:MakeTitle(k)
-	 b:EnableMouse(false)
-	 b.tristate = nil
-	 b.refresh = refresh
+         local b = setup(k, v, parent)
+         b:MakeTitle(k)
+         b:EnableMouse(false)
+         b.tristate = nil
+         b.refresh = refresh
       end
    end
 
    -- color
    do
       local function refresh(self)
-	 grefresh(self)
-	 initInfo('color')
-	 b.swatch:GetNormalTexture():SetVertexColor(runHandler(self, "get")(nil))
+         grefresh(self)
+         initInfo('color')
+         b.swatch:GetNormalTexture():SetVertexColor(runHandler(self, "get")(nil))
       end
       function Ace3.color(k, v, parent)
-	 local b = setup(k, v, parent)
-	 b.swatch:Show()
-	 b.clickable = false
-	 b.OnClick = function(self, r, g, b, a)
-			self.data.set(nil, r, g, b, a)
-			self:GetRoot():Refresh()
-		     end
+         local b = setup(k, v, parent)
+         b.swatch:Show()
+         b.clickable = false
+         b.OnClick = function(self, r, g, b, a)
+                        self.data.set(nil, r, g, b, a)
+                        self:GetRoot():Refresh()
+                     end
       end
    end
    
    -- select
    do
       local function refresh(self)
-	 grefresh(self)
-	 if self.groupFrame then
-	    self.groupFrame:Refresh()
-	 end
+         grefresh(self)
+         if self.groupFrame then
+            self.groupFrame:Refresh()
+         end
       end
       function Ace3.select(k, v, parent)
-	 local b = setup(k, v, parent)
-	 b.parentTree = v
-	 b:SetGroup(v.values, lib.Ace3MenuSelect)
-	 b.refresh = refresh
+         local b = setup(k, v, parent)
+         b.parentTree = v
+         b:SetGroup(v.values, lib.Ace3MenuSelect)
+         b.refresh = refresh
       end
       
       local function buttonRefresh(self)
-	 initInfo('select')
-	 self:SetChecked( runHandler(self:GetParent():GetParent(), "get") == self.value )
+         initInfo('select')
+         self:SetChecked( runHandler(self:GetParent():GetParent(), "get") == self.value )
       end
       function lib:Ace3MenuSelect(t, parent)
-	 initInfo('select')
-	 if type(t) == "string" or type(t) == "function" then
-	    t = runHandler(parent, "values")
-	 end
-	 if type(t) == "table" then
-	    for k, v in pairs(t) do
-	       local b = parent:AcquireButton()
-	       b:SetText(v)
-	       b.value = k
-	       b.OnClick = function(self)
-			      initInfo('select')
-			      runHandler(self:GetParent():GetParent(), "set", self.value)
-			      self:GetParent():GetRoot():Refresh()
-			   end
-	       b.refresh = buttonRefresh
-	    end
-	 end
-      end		
+         initInfo('select')
+         if type(t) == "string" or type(t) == "function" then
+            t = runHandler(parent, "values")
+         end
+         if type(t) == "table" then
+            for k, v in pairs(t) do
+               local b = parent:AcquireButton()
+               b:SetText(v)
+               b.value = k
+               b.OnClick = function(self)
+                              initInfo('select')
+                              runHandler(self:GetParent():GetParent(), "set", self.value)
+                              self:GetParent():GetRoot():Refresh()
+                           end
+               b.refresh = buttonRefresh
+            end
+         end
+      end               
    end
    
    -- range
    -- Some extra tricksery for mousewheel on the containing frame. A bit more user friendly.
    do
       local function refresh(self)
-	 grefresh(self)
-	 initInfo('range')
-	 self.slider:SetValue(runHandler(self, "get"))
-	 initInfo('range')
-	 self.slider.text:SetText(runHandler(self, "get"))
-      end	
+         grefresh(self)
+         initInfo('range')
+         self.slider:SetValue(runHandler(self, "get"))
+         initInfo('range')
+         self.slider.text:SetText(runHandler(self, "get"))
+      end       
       function Ace3.range(k, v, parent)
-	 local b = setup(k, v, parent)
-	 b:SetGroup(v, lib.Ace3SliderShow)
-	 b.slider = AcquireSlider()
-	 b.refresh = refresh
+         local b = setup(k, v, parent)
+         b:SetGroup(v, lib.Ace3SliderShow)
+         b.slider = AcquireSlider()
+         b.refresh = refresh
       end
       
-      local function onWheel(f)			
-	 f:GetParent().slider:GetScript("OnMouseWheel")(f:GetParent().slider)
+      local function onWheel(f)                 
+         f:GetParent().slider:GetScript("OnMouseWheel")(f:GetParent().slider)
       end
       
       local function removeMousewheelFuncs(f)
-	 tremove(f.buttons)
-	 f:EnableMouseWheel(false)
-	 f:SetScript("OnMouseWheel", nil)
-	 f.Hiding = nil
+         tremove(f.buttons)
+         f:EnableMouseWheel(false)
+         f:SetScript("OnMouseWheel", nil)
+         f.Hiding = nil
       end
       
       local function sliderValueChanged(self, val)
-	 initInfo('range')
-	 runHandler(self:GetParent():GetParent(), "set", val)
-	 self:GetParent():GetRoot():Refresh()
+         initInfo('range')
+         runHandler(self:GetParent():GetParent(), "set", val)
+         self:GetParent():GetRoot():Refresh()
       end
       
       local function showSlider(frame)
-	 local data = frame.data
-	 local slider = frame:GetParent().slider
+         local data = frame.data
+         local slider = frame:GetParent().slider
 
-	 slider:SetParent(frame)
-	 slider:ClearAllPoints()
-	 slider:SetPoint("CENTER", frame, "CENTER")
-	 slider:SetPoint("TOP", frame, "TOP", 0, -8)
-	 slider:SetHeight(150)
-	 slider.text:ClearAllPoints()
-	 slider.text:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 8)
-	 slider.text:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 8)
+         slider:SetParent(frame)
+         slider:ClearAllPoints()
+         slider:SetPoint("CENTER", frame, "CENTER")
+         slider:SetPoint("TOP", frame, "TOP", 0, -8)
+         slider:SetHeight(150)
+         slider.text:ClearAllPoints()
+         slider.text:SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0, 8)
+         slider.text:SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0, 8)
 
-	 slider.text:SetText(data.max)
-	 frame:SetWidth(max(60, slider.text:GetStringWidth() + 10))
+         slider.text:SetText(data.max)
+         frame:SetWidth(max(60, slider.text:GetStringWidth() + 10))
 
-	 slider.step = data.bigStep
-	 slider:SetMinMaxValues(data.min or 0, data.max or 100)				
-	 slider:SetValueStep(data.bigStep or data.step or 1)
-	 slider.ValueChanged = sliderValueChanged
-	 
-	 frame:EnableMouseWheel(true)
-	 frame:SetScript("OnMouseWheel", onWheel)
-	 frame.Hiding = removeMousewheelFuncs
-	 frame:SetHeight(180)
-	 
-	 slider:Show()
-	 refresh(frame:GetParent())
+         slider.step = data.bigStep
+         slider:SetMinMaxValues(data.min or 0, data.max or 100)                         
+         slider:SetValueStep(data.bigStep or data.step or 1)
+         slider.ValueChanged = sliderValueChanged
+         
+         frame:EnableMouseWheel(true)
+         frame:SetScript("OnMouseWheel", onWheel)
+         frame.Hiding = removeMousewheelFuncs
+         frame:SetHeight(180)
+         
+         slider:Show()
+         refresh(frame:GetParent())
       end
       
       function lib:Ace3SliderShow(t, parent)
-	 parent.data = t
-	 parent.Showing = showSlider
+         parent.data = t
+         parent.Showing = showSlider
       end
    end
    
    do
       local sortOptions = function(a,b)
-			     if (b.order or 100) > (a.order or 100) then return true
-			     elseif (b.order or 100) < (a.order or 100) then return false
-			     elseif b.name:lower() > a.name:lower() then return true
-			     else return false
-			     end			
-			  end
+                             if (b.order or 100) > (a.order or 100) then return true
+                             elseif (b.order or 100) < (a.order or 100) then return false
+                             elseif b.name:lower() > a.name:lower() then return true
+                             else return false
+                             end                        
+                          end
       
       function lib:OpenAce3Menu(t, parent)
-	 if parent == nil and t.args then
-	    if openMenu then
-	       openMenu:Release()
-	    end
-	    options = t
-	    openMenu = AcquireFrame(nil, true)
-	    openMenu:Show()
-	    openMenu.data = t
-	    openMenu.dataname = "Root menu"
-	    openMenu.rootMenu = true
-	    openMenu:SetPoint("CENTER", UIParent, "CENTER")
-	    self:OpenAce3Menu(t.args, openMenu)
-	    openMenu:Refresh()
-	    openMenu:SetFrameStrata("TOOLTIP")
-	    return openMenu
-	 else
-	    local sortedOpts = new()
-	    local lookup = new()
-	    for i = 1, #sortedOpts do
-	       tremove(sortedOpts)
-	    end
-	    for k, v in pairs(t) do
-	       lookup[v] = k
-	       tinsert(sortedOpts, v)
-	    end
-	    table.sort(sortedOpts, sortOptions)
-	    for _, v in ipairs(sortedOpts) do
-	       if Ace3[v.type] and not v.dropdownHidden and not v.hidden then
-		  Ace3[v.type](lookup[v], v, parent)
-	       end
-	    end
-	    sortedOpts = del(sortedOpts)
-	    lookup = del(lookup)
-	 end
+         if parent == nil and t.args then
+            if openMenu then
+               openMenu:Release()
+            end
+            options = t
+            openMenu = AcquireFrame(nil, true)
+            openMenu:Show()
+            openMenu.data = t
+            openMenu.dataname = "Root menu"
+            openMenu.rootMenu = true
+            openMenu:SetPoint("CENTER", UIParent, "CENTER")
+            self:OpenAce3Menu(t.args, openMenu)
+            openMenu:Refresh()
+            openMenu:SetFrameStrata("TOOLTIP")
+            return openMenu
+         else
+            local sortedOpts = new()
+            local lookup = new()
+            for i = 1, #sortedOpts do
+               tremove(sortedOpts)
+            end
+            for k, v in pairs(t) do
+               lookup[v] = k
+               tinsert(sortedOpts, v)
+            end
+            table.sort(sortedOpts, sortOptions)
+            for _, v in ipairs(sortedOpts) do
+               if Ace3[v.type] and not v.dropdownHidden and not v.hidden then
+                  Ace3[v.type](lookup[v], v, parent)
+               end
+            end
+            sortedOpts = del(sortedOpts)
+            lookup = del(lookup)
+         end
       end
    end
 end
@@ -1009,120 +1009,120 @@ local t = {
    desc = "group",
    args = {
       foo = {
-	 type = "input",
-	 name = "text",
-	 desc = "text desc",
-	 get = function(info) return "texting!" end,
-	 set = function(info, v) end
+         type = "input",
+         name = "text",
+         desc = "text desc",
+         get = function(info) return "texting!" end,
+         set = function(info, v) end
       },
       inherit = {
-	 type = "group",
-	 name = "inheritance test",
-	 desc = "inheritance test",
-	 get = function(info) ChatFrame1:AddMessage(("Got getter, getting %s (%s)"):format(tostring(info[#info]), tostring(inherits[info[#info]]))); return inherits[info[#info]] end,
-	 set = function(info, v) ChatFrame1:AddMessage("Got setter:" .. tostring(v)); inherits[info[#info]] = v end,
-	 args = {
-	    inherittoggle = {
-	       type = "toggle",
-	       name = "inherit toggle",
-	       desc = "inherit toggle"
-	    },
-	 }
+         type = "group",
+         name = "inheritance test",
+         desc = "inheritance test",
+         get = function(info) ChatFrame1:AddMessage(("Got getter, getting %s (%s)"):format(tostring(info[#info]), tostring(inherits[info[#info]]))); return inherits[info[#info]] end,
+         set = function(info, v) ChatFrame1:AddMessage("Got setter:" .. tostring(v)); inherits[info[#info]] = v end,
+         args = {
+            inherittoggle = {
+               type = "toggle",
+               name = "inherit toggle",
+               desc = "inherit toggle"
+            },
+         }
       },
       exec = {
-	 type = "execute",
-	 name = "Say hi",
-	 desc = "Execute, says hi",
-	 func = function() ChatFrame1:AddMessage("Hi!") end
+         type = "execute",
+         name = "Say hi",
+         desc = "Execute, says hi",
+         func = function() ChatFrame1:AddMessage("Hi!") end
       },
       range = {
-	 type = "range",
-	 name = "Range slider",
-	 desc = "Range slider",
-	 min = 0,
-	 max = 800,
-	 bigStep = 50,
-	 get = function(info) return rangeVal end,
-	 set = function(info, v) rangeVal = v end,			
+         type = "range",
+         name = "Range slider",
+         desc = "Range slider",
+         min = 0,
+         max = 800,
+         bigStep = 50,
+         get = function(info) return rangeVal end,
+         set = function(info, v) rangeVal = v end,                      
       },
       range2 = {
-	 type = "range",
-	 name = "Range slider 2",
-	 desc = "Range slider 2",
-	 min = 0,
-	 max = 80,
-	 bigStep = 5,
-	 get = function(info) return rangeVal2 end,
-	 set = function(info, v) rangeVal2 = v end,			
-      },		
+         type = "range",
+         name = "Range slider 2",
+         desc = "Range slider 2",
+         min = 0,
+         max = 80,
+         bigStep = 5,
+         get = function(info) return rangeVal2 end,
+         set = function(info, v) rangeVal2 = v end,                     
+      },                
       toggle = {
-	 type = "toggle",
-	 name = "Toggle",
-	 desc = "Toggle",
-	 get = function() return toggled end,
-	 set = function(info, v) toggled = v end,
-	 disabled = function(info) return not toggled end
+         type = "toggle",
+         name = "Toggle",
+         desc = "Toggle",
+         get = function() return toggled end,
+         set = function(info, v) toggled = v end,
+         disabled = function(info) return not toggled end
       },
       toggle3 = {
-	 type = "toggle",
-	 name = "Tristate Toggle Tristate Toggle Tristate Toggle",
-	 desc = "Tristate Toggle",
-	 tristate = true,
-	 get = function() return toggled end,
-	 set = function(info, v) toggled = v end
-      },		
+         type = "toggle",
+         name = "Tristate Toggle Tristate Toggle Tristate Toggle",
+         desc = "Tristate Toggle",
+         tristate = true,
+         get = function() return toggled end,
+         set = function(info, v) toggled = v end
+      },                
       select = {
-	 type = "select",
-	 name = "select",
-	 desc = "select desc",
-	 values = options,
-	 get = function(info) return optIndex end,
-	 set = function(info, v) optIndex = v end
+         type = "select",
+         name = "select",
+         desc = "select desc",
+         values = options,
+         get = function(info) return optIndex end,
+         set = function(info, v) optIndex = v end
       },
       color = {
-	 type = "color",
-	 name = "color swatch",
-	 desc = "color swatch desc",
-	 get = function(info) return r,g,b,a end,
-	 set = function(info, _r,_g,_b,_a) r,g,b,a = _r,_g,_b,_a end
+         type = "color",
+         name = "color swatch",
+         desc = "color swatch desc",
+         get = function(info) return r,g,b,a end,
+         set = function(info, _r,_g,_b,_a) r,g,b,a = _r,_g,_b,_a end
       },
       foo3 = {
-	 type = "group",
-	 name = "group!",
-	 desc = "group desc",
-	 args = {
-	    toggle3 = {
-	       type = "toggle",
-	       name = "Tristate Toggle Tristate Toggle Tristate Toggle",
-	       desc = "Tristate Toggle",
-	       tristate = true,
-	       get = function() return toggled end,
-	       set = function(info, v) toggled = v end
-	    },	
-	 }
+         type = "group",
+         name = "group!",
+         desc = "group desc",
+         args = {
+            toggle3 = {
+               type = "toggle",
+               name = "Tristate Toggle Tristate Toggle Tristate Toggle",
+               desc = "Tristate Toggle",
+               tristate = true,
+               get = function() return toggled end,
+               set = function(info, v) toggled = v end
+            },  
+         }
       },
       foo4 = {
-	 type = "group",
-	 name = "inline group!",
-	 desc = "inline group desc",
-	 inline = "true",
-	 args = {
-	    foo2 = {
-	       type = "input",
-	       name = "text3",
-	       desc = "text3 desc",
-	       get = function(info) return "texting!" end,
-	       set = function(info, v) end
-	    }
-	 },
-	 order = 500
-      },		
+         type = "group",
+         name = "inline group!",
+         desc = "inline group desc",
+         inline = "true",
+         args = {
+            foo2 = {
+               type = "input",
+               name = "text3",
+               desc = "text3 desc",
+               get = function(info) return "texting!" end,
+               set = function(info, v) end
+            }
+         },
+         order = 500
+      },                
       close = {
-	 type = "execute",
-	 name = "Close",
-	 desc = "Close this menu",
-	 func = function(self)  end,
-	 order = 1000
+         type = "execute",
+         name = "Close",
+         desc = "Close this menu",
+         func = function(self)  end,
+         order = 1000
       }
    }
 }
@@ -1135,7 +1135,7 @@ end
 ---- 
 
 WorldFrame:HookScript("OnMouseDown", function()
-					if openMenu then
-					   openMenu = openMenu:Release()
-					end
-				     end)
+                                        if openMenu then
+                                           openMenu = openMenu:Release()
+                                        end
+                                     end)
