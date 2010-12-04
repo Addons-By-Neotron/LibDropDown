@@ -63,7 +63,7 @@ local function InitializeFrame(frame)
    
    frame:SetBackdrop(backdrop)
    
-   if frame then
+   if backdrop then
       frame:SetBackdropColor(GameTooltip:GetBackdropColor())
       frame:SetBackdropBorderColor(GameTooltip:GetBackdropBorderColor())
    end
@@ -351,7 +351,7 @@ do
       self.enabled = false
       self:SetScript("OnMouseDown", nil)
       self:SetScript("OnMouseUp", nil)
-      -- self.text:SetTextColor(self:GetDisabledTextColor()) -- Removed in 3.0
+      self.text:SetTextColor(0.5, 0.5, 0.5, 1)
       self.check:SetDesaturated(true)
       self.expand:SetDesaturated(true)
       self:oldDisable()
@@ -361,6 +361,7 @@ do
       self.enabled = true
       self:SetScript("OnMouseDown", pushText)
       self:SetScript("OnMouseUp", unpushText)
+      self.text:SetTextColor(1, 1, 1, 1)
       -- self.text:SetTextColor(self:GetTextColor())    -- Removed in 3.0
       self.check:SetDesaturated(false)
       self.expand:SetDesaturated(false)
@@ -881,10 +882,11 @@ do
       local function refresh(self)
          grefresh(self)
          initInfo('range')
-         self.slider:SetValue(runHandler(self, "get"))
+         self.slider:SetValue(runHandler(self, "get") or self.slider:GetMinMaxValues())
          initInfo('range')
          self.slider.text:SetText(runHandler(self, "get"))
       end       
+
       function Ace3.range(k, v, parent)
          local b = setup(k, v, parent)
          b:SetGroup(v, lib.Ace3SliderShow)
@@ -955,6 +957,7 @@ do
                           end
       
       function lib:OpenAce3Menu(t, parent)
+	 assert(t and type(t) == "table", "Expected table, got "..type(t))
          if parent == nil and t.args then
             if openMenu then
                openMenu:Release()
