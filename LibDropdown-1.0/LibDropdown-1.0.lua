@@ -782,10 +782,11 @@ do
       local function refresh(self)
          local disabled = grefresh(self)
          initInfo('toggle')
+	 local actual = runHandler(self, "get")
 	 if disabled then
 	    self:SetChecked(false)
 	 else
-	    self:SetChecked(runHandler(self, "get"))
+	    self:SetChecked(actual)
 	 end
       end
       local function onClick(self)
