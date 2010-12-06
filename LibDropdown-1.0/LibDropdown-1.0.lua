@@ -649,18 +649,18 @@ do
          local ht = type(v[handler])
          if ht == "function" then
             setInfoOptions()
-            local ret = v[handler](info, ...)
+            local ret, r1, r2, r3 = v[handler](info, ...)
             wipeInfo()
-            return ret
+            return ret, r1, r2, r3
          elseif ht == "table" then
             return v[handler]
          elseif ht == "string" then
             local t = runHandler(button, "handler", ...)
             if type(t) == "table" then
                setInfoOptions()
-               ret = t[v[handler]](t, info, ...)
+               local ret, r1, r2, r3 = t[v[handler]](t, info, ...)
                wipeInfo()
-               return ret
+               return ret, r1, r2, r3
             end
          end
       elseif v and v[handler] == false then
@@ -823,14 +823,15 @@ do
       local function refresh(self)
          grefresh(self)
          initInfo('color')
-         b.swatch:GetNormalTexture():SetVertexColor(runHandler(self, "get")(nil))
+         self.swatch:GetNormalTexture():SetVertexColor(runHandler(self, "get"))
       end
       function Ace3.color(k, v, parent)
          local b = setup(k, v, parent)
          b.swatch:Show()
          b.clickable = false
+	 b.refresh = refresh
          b.OnClick = function(self, r, g, b, a)
-                        self.data.set(nil, r, g, b, a)
+			runHandler(self, "set", r, g, b, a);
                         self:GetRoot():Refresh()
                      end
       end
