@@ -681,21 +681,25 @@ do
    end
    
    function grefresh(self)
+      local isDisabled = false
       self:SetText(self.data.name)
       self.desc = self.data.desc
       if type(self.data.disabled) == "function" then
          if self.data.disabled() then
             self:Disable()
+	    isDisabled = true
          else
             self:Enable()
          end
       elseif type(self.data.disabled) == "boolean" then
          if self.data.disabled then
             self:Disable()
+	    isDisabled = true
          else
             self:Enable()
          end
       end
+      return isDisabled
    end
 
    -- group
@@ -776,9 +780,13 @@ do
    -- toggle
    do
       local function refresh(self)
-         grefresh(self)
+         local disabled = grefresh(self)
          initInfo('toggle')
-         self:SetChecked(runHandler(self, "get"))
+	 if disabled then
+	    self:SetChecked(false)
+	 else
+	    self:SetChecked(runHandler(self, "get"))
+	 end
       end
       local function onClick(self)
          initInfo('toggle')
@@ -795,6 +803,7 @@ do
          end
          self:GetRoot():Refresh()
       end
+      
       function Ace3.toggle(k, v, parent)
          local b = setup(k, v, parent)
          b.OnClick = onClick
