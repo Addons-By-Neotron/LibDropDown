@@ -4,7 +4,36 @@ local MINOR = 1
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
 
-local math_max = _G.math.max
+local assert = assert
+local ipairs = ipairs
+local math = math
+local max = max
+local min = min
+local next = next
+local pairs = pairs
+local select = select
+local table = table
+local setmetatable = setmetatable
+local tinsert = tinsert
+local tostring = tostring
+local tremove = tremove
+local type 	= type
+local wipe = wipe
+
+local CreateFrame = CreateFrame
+local PlaySound = PlaySound
+local ShowUIPanel = ShowUIPanel
+local GetMouseFocus = GetMouseFocus
+local UISpecialFrames = UISpecialFrames
+
+local ChatFrame1 = ChatFrame1
+local ColorPickerFrame = ColorPickerFrame
+local GameTooltip = GameTooltip
+
+local GameTooltip_SetDefaultAnchor = GameTooltip_SetDefaultAnchor
+
+local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
+local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
 
 local framePool = lib.framePool or {}
 lib.framePool = framePool
@@ -121,7 +150,7 @@ local function AcquireSlider()
 	
 	local text = frame:CreateFontString(nil, nil, "GameFontNormalSmall")
 	text:SetPoint("TOP", frame, "BOTTOM")
-	text:SetTextColor(1,1,1,1)
+	text:SetTextColor(1, 1, 1, 1)
 	frame.text = text
 	
 	frame:SetScript("OnMouseWheel", function(self, direction, ...)
@@ -198,7 +227,7 @@ function Refresh(self)
 	local maxWidth = 1
 	for i = 1, #self.buttons do
 		self.buttons[i]:refresh()
-		maxWidth = math_max(maxWidth, self.buttons[i].text:GetStringWidth() + 60)
+		maxWidth = math.max(maxWidth, self.buttons[i].text:GetStringWidth() + 60)
 	end
 	self:SetWidth(maxWidth)
 end
@@ -336,7 +365,7 @@ do
 	local function click(self)
 		if self.OnClick and self.clickable then
 			self.OnClick(self)
-			PlaySound("igMainMenuOptionCheckBoxOn");
+			PlaySound("igMainMenuOptionCheckBoxOn")
 			self:GetParent():GetRoot():Refresh()
 		end
 	end
@@ -371,12 +400,12 @@ do
 	end
 	
 	local function setColor()
-		local r,g,b = ColorPickerFrame:GetColorRGB()
+		local r, g, b = ColorPickerFrame:GetColorRGB()
 		local a = ColorPickerFrame.opacity or 1
 		local f = ColorPickerFrame.previousValues.frame
 		f:GetNormalTexture():SetVertexColor(r, g, b, a)
 		if f:GetParent().OnClick then
-			f:GetParent():OnClick(r,g,b,a)
+			f:GetParent():OnClick(r, g, b, a)
 		end
 	end
 	
@@ -408,11 +437,11 @@ do
 	end
 
 	local function highlightSwatch(self)
-		self.tex:SetTexture(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b);
+		self.tex:SetTexture(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
 	end
 
 	local function unhighlightSwatch(self)
-		self.tex:SetTexture(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b);
+		self.tex:SetTexture(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
 	end
 
 	local function makeTitle(self, t)
@@ -433,7 +462,7 @@ do
 		text:SetPoint("BOTTOM", frame, "BOTTOM")
 		text:SetPoint("RIGHT", expand, "LEFT", -4, 0)
 		text:SetJustifyH("LEFT")
-		self.text:SetTextColor(1, 1,1,1)
+		self.text:SetTextColor(1, 1, 1, 1)
 		self.clickable = true
 		if t then text:SetText(t) end
 	end
@@ -839,7 +868,7 @@ do
 			b.clickable = false
 			 b.refresh = refresh
 			b.OnClick = function(self, r, g, b, a)
-				runHandler(self, "set", r, g, b, a);
+				runHandler(self, "set", r, g, b, a)
 				self:GetRoot():Refresh()
 			end
 		end
@@ -957,7 +986,7 @@ do
 	end
 
 	do
-		local sortOptions = function(a,b)
+		local sortOptions = function(a, b)
 		if (b.order or 100) > (a.order or 100) then return true
 		elseif (b.order or 100) < (a.order or 100) then return false
 		elseif b.name:lower() > a.name:lower() then return true
@@ -1009,7 +1038,7 @@ end
 ------------------------------------------------------
 
 local toggled = true
-local r,g,b,a = 1,0,1,1
+local r, g, b, a = 1, 0, 1, 1
 local options = {"foo", "bar", "foobar"}
 local optIndex = 1
 local rangeVal, rangeVal2 = 100, 10
@@ -1031,8 +1060,8 @@ local t = {
 			type = "group",
 			name = "inheritance test",
 			desc = "inheritance test",
-			get = function(info) ChatFrame1:AddMessage(("Got getter, getting %s (%s)"):format(tostring(info[#info]), tostring(inherits[info[#info]]))); return inherits[info[#info]] end,
-			set = function(info, v) ChatFrame1:AddMessage("Got setter:" .. tostring(v)); inherits[info[#info]] = v end,
+			get = function(info) ChatFrame1:AddMessage(("Got getter, getting %s (%s)"):format(tostring(info[#info]), tostring(inherits[info[#info]]))) return inherits[info[#info]] end,
+			set = function(info, v) ChatFrame1:AddMessage("Got setter:" .. tostring(v)) inherits[info[#info]] = v end,
 			args = {
 				inherittoggle = {
 					type = "toggle",
@@ -1095,8 +1124,8 @@ local t = {
 			type = "color",
 			name = "color swatch",
 			desc = "color swatch desc",
-			get = function(info) return r,g,b,a end,
-			set = function(info, _r,_g,_b,_a) r,g,b,a = _r,_g,_b,_a end
+			get = function(info) return r, g, b, a end,
+			set = function(info, _r, _g, _b, _a) r, g, b, a = _r, _g, _b, _a end
 		},
 		foo3 = {
 			type = "group",
@@ -1139,9 +1168,9 @@ local t = {
 	}
 }
 
-function testlibdropdown()
+--[[function testlibdropdown()
 	LibStub("LibDropdown-1.0"):OpenAce3Menu(t)
-end
+end]]
 
 WorldFrame:HookScript("OnMouseDown", function()
 	if openMenu then
