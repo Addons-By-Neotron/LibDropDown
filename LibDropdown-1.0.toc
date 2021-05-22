@@ -1,4 +1,8 @@
-## Interface: 90002
+## Interface: 90005
+## Interface-Classic: 11306
+## Interface-BCC: 20501
+## Interface-Retail: 90005
+## X-Curse-Project-ID: 17280
 ## Title: Lib: Dropdown-1.0
 ## Notes: Dropdown library for Ace3 options, extensible to other options formats. Works ok.
 ## Author: Antiarc, NeoTron
