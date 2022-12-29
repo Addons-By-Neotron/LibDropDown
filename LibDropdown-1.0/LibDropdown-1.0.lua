@@ -376,7 +376,9 @@ do
 		if self.OnClick and self.clickable then
 			self.OnClick(self)
 			PlaySound(856)
-			self:GetParent():GetRoot():Refresh()
+			if self:IsShown() then
+				self:GetParent():GetRoot():Refresh()
+			end
 		end
 	end
 
@@ -783,7 +785,9 @@ do
 		local function inputValueChanged(self, val)
 			initInfo('input')
 			runHandler(self:GetParent():GetParent(), "set", val)
-			self:GetParent():GetRoot():Refresh()
+			if self:IsShown() then
+				self:GetParent():GetRoot():Refresh()
+			end
 		end
 
 		function Ace3.input(k, v, parent)
@@ -839,7 +843,10 @@ do
 				local val = not runHandler(self, "get")
 				runHandler(self, "set", val)
 			end
-			self:GetRoot():Refresh()
+
+			if self:IsShown() then
+				self:GetRoot():Refresh()
+			end
 		end
 
 		function Ace3.toggle(k, v, parent)
