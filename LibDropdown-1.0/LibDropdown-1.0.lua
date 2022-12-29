@@ -771,7 +771,9 @@ do
 		b.OnClick = function(self)
 			initInfo('execute')
 			runHandler(self, "func")
-			self:GetRoot():Refresh()
+			if self:IsShown() then
+				self:GetRoot():Refresh()
+			end
 		end
 	end
 
