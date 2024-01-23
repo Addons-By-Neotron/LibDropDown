@@ -1185,8 +1185,12 @@ local t = {
 	LibStub("LibDropdown-1.0"):OpenAce3Menu(t)
 end]]
 
-WorldFrame:HookScript("OnMouseDown", function()
-	if openMenu then
-		openMenu = openMenu:Release()
+hooksecurefunc("UIDropDownMenu_HandleGlobalMouseEvent", function(button, event)
+	if openMenu and event == "GLOBAL_MOUSE_DOWN" and (button == "LeftButton" or button == "RightButton") then
+		for i = 0, frameCount - 1 do
+			if _G["LibDropdownFrame" .. i]:IsMouseOver() then return end
+		end
+
+		openMenu:Release()
 	end
 end)
