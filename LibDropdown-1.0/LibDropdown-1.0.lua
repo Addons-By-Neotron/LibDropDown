@@ -1,5 +1,5 @@
 local MAJOR = "LibDropdown-1.0"
-local MINOR = 2024
+local MINOR = 20240724
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
@@ -209,14 +209,25 @@ local function ReleaseInput(input)
 end
 
 local function MouseOver(frame)
-	local f = GetMouseFocus()
-	while f and f ~= UIParent do
-		if f == frame then return true end
-		f = f:GetParent()
+    if GetMouseFocus then
+        local f = GetMouseFocus()
+        while f and f ~= UIParent do
+            if f == frame then return true end
+            f = f:GetParent()
+        end
+    else
+        local mouseFoci = GetMouseFoci()
+        for _, f in ipairs(mouseFoci) do
+            while f do
+                if f == frame then
+                    return true
+                end
+                f = f:GetParent()
+            end
+        end
 	end
 	return false
 end
-
 -- Frame methods
 function AddButton(self, b)
 	b:ClearAllPoints()
