@@ -1,5 +1,5 @@
 local MAJOR = "LibDropdown-1.0"
-ocal MINOR = tonumber("@project-date-integer@") or tonumber(date("%Y%m%d%H%M%S"))
+local MINOR = tonumber("@project-date-integer@") or tonumber(date("%Y%m%d%H%M%S"))
 
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 if not lib then return end
