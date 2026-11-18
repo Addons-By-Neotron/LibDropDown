@@ -1215,7 +1215,18 @@ if UIDropDownMenu_HandleGlobalMouseEvent then
 		end
 	end)
 else
-	lib.mousecallback = EventRegistry:RegisterFrameEventAndCallback("GLOBAL_MOUSE_DOWN",function(ownerID,button)
+	-- Our own event frame rather than EventRegistry:RegisterFrameEventAndCallback:
+	-- writing to EventRegistry's shared callback table from addon code taints
+	-- it for Blizzard's other subscribers.
+	if lib.mousecallback and EventRegistry and EventRegistry.UnregisterFrameEventAndCallback then
+		-- Registered by an older copy of the library.
+		EventRegistry:UnregisterFrameEventAndCallback("GLOBAL_MOUSE_DOWN", lib.mousecallback)
+		lib.mousecallback = nil
+	end
+	local mouseFrame = lib.mouseFrame or CreateFrame("Frame")
+	lib.mouseFrame = mouseFrame
+	mouseFrame:RegisterEvent("GLOBAL_MOUSE_DOWN")
+	mouseFrame:SetScript("OnEvent", function(_, _, button)
 		if openMenu and (button == "LeftButton" or button == "RightButton") then
 			for i = 0, frameCount - 1 do
 				if _G["LibDropdownFrame" .. i]:IsMouseOver() then return end
