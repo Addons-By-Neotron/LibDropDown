@@ -273,9 +273,18 @@ function ShowGroup(self)
 		self.handler(lib, self.group, self.groupFrame)
 		self.handled = true
 	end
-	self.groupFrame:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 4)
-	self.groupFrame:Show()
-	self.groupFrame:Refresh()
+	local groupFrame = self.groupFrame
+	groupFrame:ClearAllPoints()
+	groupFrame:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 4)
+	groupFrame:Show()
+	groupFrame:Refresh()
+	-- No room on the right: open to the left instead.
+	local right, scale = groupFrame:GetRight(), groupFrame:GetEffectiveScale()
+	local screenRight = UIParent:GetRight() * UIParent:GetEffectiveScale()
+	if right and right * scale > screenRight then
+		groupFrame:ClearAllPoints()
+		groupFrame:SetPoint("TOPRIGHT", self, "TOPLEFT", 0, 4)
+	end
 	self:LockHighlight()
 	self:enter()
 	if self.groupFrame.Showing then
